@@ -4,9 +4,13 @@ DROP VIEW IF EXISTS bands;
 
 -- create the view with desired ranking
 CREATE VIEW bands AS
-SELECT band_name, 2022 - formed AS lifespan
+SELECT band_name,
+	CASE
+		WHEN split IS NOT NULL THEN 2022 - formed
+		ELSE 2022 - formed
+	END AS lifespan
 FROM metal_bands
-WHERE style = "Glam rock"
+WHERE style LIKE '%Glam rock%'
 ORDER BY lifespan DESC;
 
 -- display view
