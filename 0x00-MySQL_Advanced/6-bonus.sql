@@ -1,5 +1,7 @@
+-- Delimiter for creating the procedure
 DELIMITER //
 
+-- Creating the procedure
 CREATE PROCEDURE AddBonus(IN user_id INT, IN project_name VARCHAR(255), IN score DECIMAL(5,2))
 BEGIN
 	-- Declare a local variable 'project_id' to store the project's ID
