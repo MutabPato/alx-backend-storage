@@ -10,8 +10,9 @@ def top_students(mongo_collection):
     """returns all students sorted by average score"""
     return mongo_collection.aggregate([
         {"$project": {
-            "name": "$name",
-            "averageScore": {"$avg": "$topics.score"}
-        }},
+            "name": 1,
+            "averageScore": {"$avg": "$topics.score"},
+            }
+        },
         {"$sort": {"averagescore": -1}}
     ])
