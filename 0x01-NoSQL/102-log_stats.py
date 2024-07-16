@@ -20,3 +20,13 @@ if __name__ == "__main__":
           f'{collection.count_documents({"method": "DELETE"})}')
     print(f'{collection.count_documents({"method": "GET", "path": "/status"})}'
           f' status check')
+    print("IPs:")
+    sorted_ips = collection.aggregate(
+            [{"$group": {"_id": "$ip", "count": {"$sum": 1}}},
+             {"$sort": {"count": -1}}])
+    i = 0
+    for s in sorted_ips:
+        if i == 10:
+            break
+        print(f"\t{s.get('_id')}: {s.get('count')}")
+        i += 1
