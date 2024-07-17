@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Redis basic"""
-  
+
 import redis
 import uuid
 from typing import Union, Callable
@@ -14,6 +14,7 @@ def count_calls(method: Callable) -> Callable:
         self._redis.incr(method.__qualname__)
         return method(self, *args, **kwargs)
     return wrapper
+
 
 def call_history(method: Callable) -> Callable:
     """store the history of inputs and outputs for a particular function"""
@@ -37,6 +38,7 @@ def call_history(method: Callable) -> Callable:
 
         return result
     return wrapper
+
 
 class Cache:
     """Cache class"""
@@ -77,19 +79,21 @@ class Cache:
         """Increments the count for the key every time the method is called"""
         return self._redis.incr(key)
 
-    def replay(method: Callable):
-        # preparing keys for inputs and outputs
-        inputs_key = f"{method.__qualname__}:inputs"
-        outputs_key = f"{method.__qualname__}:outputs"
-        
-        # connect to redis
-        r = redis.Redis()
 
-        # Retrieve input and outputs from redis
-        inputs = r.lrange(inputs_key, 0, -1)
-        outputs = r.lrange(outputs_key, 0, -1)
+def replay(method: Callable):
+    """Display the history of calls of a particular function"""
+    # preparing keys for inputs and outputs
+    inputs_key = f"{method.__qualname__}:inputs"
+    outputs_key = f"{method.__qualname__}:outputs"
 
-        print(f"{method.__qualname__} was called {len(inputs)} times:")
+    # connect to redis
+    r = redis.Redis()
 
-        for input, output in zip(inputs, outputs):
-            print(f"{method.__qualname__}(*{input.decode('utf-8')}) -> {output.decode('utf-8')}")
+    # Retrieve input and outputs from redis
+    inputs = r.lrange(inputs_key, 0, -1)
+    outputs = r.lrange(outputs_key, 0, -1)
+
+    print(f"{method.__qualname__} was called {len(inputs)} times:")
+
+    for input, output in zip(inputs, outputs):
+        print(f"{method.__qualname__}(*{input.decode('utf-8')}) -> {output.decode('utf-8')}")
