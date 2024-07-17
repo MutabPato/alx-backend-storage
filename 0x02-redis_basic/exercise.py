@@ -23,7 +23,7 @@ def call_history(method: Callable) -> Callable:
         # preparing keys for inputs and outputs
         inputs_key = f"{method.__qualname__}:inputs"
         outputs_key = f"{method.__qualname__}:outputs"
-        
+
         # convert args to string for storage
         args_str = str(args)
 
@@ -58,7 +58,8 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None) -> Union[str, bytes, int, float]:
+    def get(self, key: str, fn: Callable = None) -> Union[
+            str, bytes, int, float]:
         data = self._redis.get(key)
         if data is None:
             return None
@@ -96,4 +97,5 @@ def replay(method: Callable):
     print(f"{method.__qualname__} was called {len(inputs)} times:")
 
     for input, output in zip(inputs, outputs):
-        print(f"{method.__qualname__}(*{input.decode('utf-8')}) -> {output.decode('utf-8')}")
+        print(f"{method.__qualname__}(*{input.decode('utf-8')})"
+              f" -> {output.decode('utf-8')}")
