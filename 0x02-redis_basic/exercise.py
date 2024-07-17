@@ -76,3 +76,20 @@ class Cache:
     def incr(self, key: str) -> str:
         """Increments the count for the key every time the method is called"""
         return self._redis.incr(key)
+
+    def replay(method: Callable):
+        # preparing keys for inputs and outputs
+        inputs_key = f"{method.__qualname__}:inputs"
+        outputs_key = f"{method.__qualname__}:outputs"
+        
+        # connect to redis
+        r = redis.Redis()
+
+        # Retrieve input and outputs from redis
+        inputs = r.lrange(inputs_key, 0, -1)
+        outputs = r.lrange(outputs_key, 0, -1)
+
+        print(f"{method.__qualname__} was called {len(inputs)} times:")
+
+        for input, output in zip(inputs, outputs):
+            print(f"{method.__qualname__}(*{input.decode('utf-8')}) -> {output.decode('utf-8')}")
