@@ -11,6 +11,7 @@ def count_calls(method: Callable) -> Callable:
     """Decorator to count the number of calss to a method"""
     @wraps(method)
     def wrapper(self, *args, **kwargs):
+        """wrapper method"""
         self._redis.incr(method.__qualname__)
         return method(self, *args, **kwargs)
     return wrapper
@@ -20,6 +21,7 @@ def call_history(method: Callable) -> Callable:
     """store the history of inputs and outputs for a particular function"""
     @wraps(method)
     def wrapper(self, *args, **kwargs):
+        """wrapper method"""
         # preparing keys for inputs and outputs
         inputs_key = f"{method.__qualname__}:inputs"
         outputs_key = f"{method.__qualname__}:outputs"
@@ -60,6 +62,7 @@ class Cache:
 
     def get(self, key: str, fn: Callable = None) -> Union[
             str, bytes, int, float]:
+        """"convert the data back to the desired format"""
         data = self._redis.get(key)
         if data is None:
             return None
