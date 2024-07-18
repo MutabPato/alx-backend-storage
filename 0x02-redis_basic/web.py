@@ -3,42 +3,30 @@
 
 import redis
 import requests
-from functools import wraps
+
+client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 
-r = redis.Redis()
-
-
-def cache_page(expire_time=10):
-    """Decorator to track how many times a particular URL was accessed
-    and cache the result with an expiration time of 10 seconds"""
-    def decorator(func):
-        @wraps(func)
-        def wrapper(url, *args, **kwargs):
-            """wrapper method"""
-            r.incr(f"count:{url}")
-
-            cached_result = r.get(url)
-            if cached_result:
-                print("Using cached data")
-                return cached_result.decode('utf-8')
-
-            result = func(url, *args, **kwargs)
-            r.set(url, result, ex=expire_time)
-            return result
-        return wrapper
-    return decorator
-
-
-@cache_page(expire_time=10)
 def get_page(url: str) -> str:
-    """uses the requests module to obtain the HTML content
-    of a particular URL and returns it"""
+    """obtain the HTML content of a particular URL and returns it"""
+    # Generate cache key for the url
+    cache_key = f"cache:{url}"
+    count_key = f"count:{url}"
 
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.text
-    except requests.RequestException as e:
-        print(f"An error has occurred: {e}")
-        return ""
+    # Increment the access count
+    client.incr(count_key)
+
+    # Check if the URL content is already cached
+    cached_content = client.get(cache_key)
+    if cached_content:
+        print("Using cached data")
+        return cached_content.decode('utf-8')
+
+    # Fetch the HTML content from the URL
+    response = requests.get(url)
+    html_content = response.text
+
+    # Cache the HTML content with an expiration of 10 sec
+    client.setex(cache_key, 10, html_content)
+
+    return html_content
