@@ -2,16 +2,14 @@
 """Redis basic"""
 
 import redis
-import uuid
 import requests
-from typing import Union, Callable
 from functools import wraps
 
 
 r = redis.Redis()
 
 
-def cache_page(method: Callable) -> Callable:
+def cache_page(expire_time=10):
     """Decorator to track how many times a particular URL was accessed
     and cache the result with an expiration time of 10 seconds"""
     def decorator(func):
@@ -32,7 +30,7 @@ def cache_page(method: Callable) -> Callable:
     return decorator
 
 
-@cache_page
+@cache_page(expire_time=10)
 def get_page(url: str) -> str:
     """uses the requests module to obtain the HTML content
     of a particular URL and returns it"""
