@@ -1,0 +1,5 @@
+git-lfs-3.5.1/
+*.tar
+*.tar.gz
+*.zip
+names.sql
