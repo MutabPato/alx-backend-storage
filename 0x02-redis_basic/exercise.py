@@ -4,6 +4,19 @@
 import redis
 import uuid
 from typing import Union, Callable
+from functools import wraps
+
+
+def count_calls(method: Callable) -> Callable:
+    """Decorator to count the number of calls to a method"""
+    key = method.__qualname__
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """Wrapper function to count method calls and execute the method"""
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+
+    return wrapper
 
 
 class Cache():
@@ -14,6 +27,7 @@ class Cache():
         self._redis = redis.Redis(host='localhost', port=6379, db=0)
         self._redis.flushdb(True)
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """Stores a value in a Redis data storage and returns the key"""
         key = str(uuid.uuid4())
